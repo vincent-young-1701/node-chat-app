@@ -17,11 +17,18 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
+
+  socket.emit('newMessage', {
+    from: 'kristin@sexy.com',
+    text: 'Hey, sexy.',
+    createdAt: 69
+  });
+
+  socket.on('createMessage', (message) => {
+    console.log('createMessage', message);
+  });
 });
 
 server.listen(port, () => {
   console.log(`Started on port ${port}`);
 });
-
-
-console.log(publicPath);
