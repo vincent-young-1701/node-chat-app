@@ -4,11 +4,11 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 const publicPath = path.join(__dirname, '../public');
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 4000;
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
-var generateMessage = require('./utils/message');
+var {generateMessage, generateLocationMessage} = require('./utils/message');
 
 app.use(express.static(publicPath));
 
@@ -20,13 +20,15 @@ io.on('connection', (socket) => {
   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined!'));
 
   socket.on('createMessage', (message) => {
-    console.log('createMessage', message);
     io.emit('newMessage', generateMessage(message.from, message.text));
-    socket.broadcast.emit('newMessage', generateMessage(message.from, message.text));
+  });
+
+  socket.on('createLocationMessage', (coords) => {
+    io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected');
+    socket.broadcast.emit('newMessage', generateMessage('Admin', 'User left the room.'));
   });
 });
 
